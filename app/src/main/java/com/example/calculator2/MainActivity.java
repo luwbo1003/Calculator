@@ -1,25 +1,40 @@
 package com.example.calculator2;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.material.button.MaterialButton;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import java.util.ArrayList;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener
+{
     TextView tvres, tvso;
     MaterialButton btnC, btnOp, btnClo;
     MaterialButton btnDivide, btnMultiply, btnPlus, btnMinus, btnEquals;
     MaterialButton btn0, btn1, btn2, btn3,btn4,btn5,btn6,btn7,btn8,btn9;
     MaterialButton btnAC, btnDot;
+
+    MaterialButton btnHistory;
+
+    ArrayList<String> result = new ArrayList<String>();
+    ArrayList<String> solution = new ArrayList<String>();
+
+    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tvres = findViewById(R.id.tvres);
         tvso = findViewById(R.id.tvso);
+        btnHistory = findViewById(R.id.btnHistory);
+
 
         asID(btnC,R.id.btnC);
         asID(btnOp,R.id.btnOp);
@@ -40,13 +55,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         asID(btn8,R.id.btn8);
         asID(btn9,R.id.btn9);
         asID(btnAC,R.id.btnAC);
-        asID(btnDot,R.id.btnDot);
 
+        btnHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), activity_history.class);
+                if (result != null || solution != null){
+                    intent.putExtra("result", result);
+                    intent.putExtra("solution", solution);
+                }
+                startActivity(intent);
+            }
+        });
     }
+
     void asID(MaterialButton btn, int id){
         btn = findViewById(id);
         btn.setOnClickListener((View.OnClickListener) this);
     }
+
 
     @Override
     public void onClick(View v) {
@@ -62,7 +89,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (buttonText.equals("=")){
            double va = eval(dataToCal);
            tvres.setText(String.valueOf(va));
+           result.add(String.valueOf(va));
+           solution.add(tvso.getText().toString());
            return;
+
         }
         if (buttonText.equals("C")){
             dataToCal = dataToCal.substring(0, dataToCal.length()-1);
@@ -143,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     else if (func.equals("ln")) x = Math.log(x);
                     else throw new RuntimeException("Unknown function: " + func);
                 } else {
-                    throw new RuntimeException("Unexpected: " + (char)ch);
+                    throw new RuntimeException("Unexpected: " + (char) ch);
                 }
 
                 if (eat('^')) x = Math.pow(x, parseFactor()); // exponentiation
@@ -151,5 +181,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return x;
             }
         }.parse();
+
+        }
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (tvres.getText().toString()!=null)
+            outState.putString("result", tvres.getText().toString());
+
+        if (tvso.getText().toString()!=null)
+            outState.putString("solution", tvso.getText().toString());
+
+        if (result != null)
+            outState.putStringArrayList("results", result);
+
+        if (solution != null)
+            outState.putStringArrayList("solutions", solution);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState.get("result")!=null)
+            tvres.setText(savedInstanceState.get("result").toString());
+        if (savedInstanceState.get("solution")!=null)
+            tvso.setText(savedInstanceState.get("solution").toString());
+
+        if (savedInstanceState.get("results")!= null)
+            result = savedInstanceState.getStringArrayList("results");
+
+        if (savedInstanceState.get("solutions")!= null)
+            solution = savedInstanceState.getStringArrayList("solutions");
     }
 }
+
+

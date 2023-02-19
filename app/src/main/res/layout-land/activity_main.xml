@@ -306,4 +306,16 @@
 
     </LinearLayout>
 
+    <Button
+        android:id="@+id/btnHistory"
+        android:layout_width="60dp"
+        android:layout_height="68dp"
+        android:layout_marginStart="11dp"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="@color/material_dynamic_neutral90"
+        android:insetLeft="0dp"
+        app:cornerRadius="36dp"
+        app:icon="@drawable/icons8_time_machine_30"
+        app:iconTint="@android:color/holo_orange_dark" />" />
+
 </RelativeLayout>
